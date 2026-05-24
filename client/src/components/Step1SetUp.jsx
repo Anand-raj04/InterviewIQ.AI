@@ -35,8 +35,18 @@ function Step1SetUp({ onStart }) {
         formdata.append("resume", resumeFile)
 
         try {
-            const result = await axios.post(ServerUrl + "/api/interview/resume", formdata, { withCredentials: true })
+            // const result = await axios.post(ServerUrl + "/api/interview/resume", formdata, { withCredentials: true })
 
+            const result = await axios.post(
+   ServerUrl + "/api/interview/resume",
+   formdata,
+   {
+      headers: {
+         "Content-Type": "multipart/form-data"
+      },
+      withCredentials: true
+   }
+)
             console.log(result.data)
 
             setRole(result.data.role || "");
@@ -54,22 +64,77 @@ function Step1SetUp({ onStart }) {
         }
     }
 
-    const handleStart = async () => {
-        setLoading(true)
-        try {
-           const result = await axios.post(ServerUrl + "/api/interview/generate-questions" , {role, experience, mode , resumeText, projects, skills } , {withCredentials:true}) 
-           console.log(result.data)
-           if(userData){
-            dispatch(setUserData({...userData , credits:result.data.creditsLeft}))
-           }
-           setLoading(false)
-           onStart(result.data)
+    // const handleStart = async () => {
+    //     setLoading(true)
+    //     try {
+    //        const result = await axios.post(ServerUrl + "/api/interview/generate-questions" , {role, experience, mode , resumeText, projects, skills } , {withCredentials:true}) 
+    //        console.log(result.data)
+    //        if(userData){
+    //         dispatch(setUserData({...userData , credits:result.data.creditsLeft}))
+    //        }
+    //        setLoading(false)
+    //        onStart(result.data)
 
-        } catch (error) {
-            console.log(error)
-            setLoading(false)
-        }
+    //     } catch (error) {
+    //         console.log(error)
+    //         setLoading(false)
+    //     }
+    // }
+
+
+    const handleStart = async () => {
+
+    if (!role.trim() || !experience.trim()) {
+        alert("Please enter role and experience");
+        return;
     }
+
+    setLoading(true);
+
+    try {
+
+        const payload = {
+            role: role || "",
+            experience: experience || "",
+            mode: mode || "Technical",
+            resumeText: resumeText || "",
+            projects: projects || [],
+            skills: skills || []
+        };
+
+        console.log(payload);
+
+        const result = await axios.post(
+            ServerUrl + "/api/interview/generate-questions",
+            payload,
+            {
+                withCredentials: true
+            }
+        );
+
+        console.log(result.data);
+
+        if (userData) {
+            dispatch(setUserData({
+                ...userData,
+                credits: result.data.creditsLeft
+            }));
+        }
+
+        setLoading(false);
+
+        onStart(result.data);
+
+    } catch (error) {
+
+        console.log(
+            error.response?.data || error.message
+        );
+
+        setLoading(false);
+    }
+};
+    
     return (
         <motion.div
             initial={{ opacity: 0 }}

@@ -140,7 +140,6 @@ Both servers must be running simultaneously for the app to work.
 This project uses Razorpay for a credit-based payment model.
 
 ☁️ Deployment
-
-URL=
+URL=https://ai-iinterview-iq-1.onrender.com/
 
 
